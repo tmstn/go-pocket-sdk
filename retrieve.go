@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 const RetrieveEndpoint string = "/get"
 
 type RetrieveRequestParams struct {
-	*RequestAuthParams
 	State       LinkState   `json:"state,omitempty"`
 	Favorite    Bool        `json:"favorite,omitempty"`
 	Tag         string      `json:"tag,omitempty"`
@@ -22,12 +22,13 @@ type RetrieveRequestParams struct {
 	DetailType  DetailType  `json:"detailType,omitempty"`
 	Search      string      `json:"search,omitempty"`
 	Domain      string      `json:"domain,omitempty"`
-	Since       time.Time   `json:"-"`
+	Since       *time.Time  `json:"-"`
 	Count       uint        `json:"-"`
 	Offset      uint        `json:"-"`
 }
 
 type retrieveRequestParams struct {
+	*RequestAuthParams
 	*RetrieveRequestParams
 	SinceUnix    string `json:"since,omitempty"`
 	CountString  string `json:"count,omitempty"`
@@ -37,6 +38,34 @@ type retrieveRequestParams struct {
 type RetrieveRequestResponse struct {
 	List   RetrieveRequestResponseItems `json:"list"`
 	Status ActionStatus                 `json:"status"`
+}
+
+func (r *RetrieveRequestResponse) UnmarshalJSON(data []byte) error {
+	var v struct {
+		List   interface{} `json:"list"`
+		Status int         `json:"status"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	r.Status = ActionStatus(v.Status)
+	r.List = RetrieveRequestResponseItems{}
+
+	if reflect.ValueOf(v.List).Kind() == reflect.Map {
+		var l struct {
+			List RetrieveRequestResponseItems `json:"list"`
+		}
+
+		if err := json.Unmarshal(data, &l); err != nil {
+			return err
+		}
+
+		r.List = l.List
+	}
+
+	return nil
 }
 
 type RetrieveRequestResponseItems map[string]RetrieveRequestResponseItem
@@ -102,12 +131,21 @@ func (r *RetrieveRequestResponseItem) TimeFavorited() time.Time {
 }
 
 func (c *Client) Retrieve(ctx context.Context, params *RetrieveRequestParams) (*RetrieveRequestResponse, error) {
-	params.RequestAuthParams = c.Auth.RequestAuthParams
 	p := &retrieveRequestParams{
+		RequestAuthParams:     c.Auth.RequestAuthParams,
 		RetrieveRequestParams: params,
-		SinceUnix:             fmt.Sprintf("%d", params.Since.Unix()),
-		CountString:           fmt.Sprintf("%d", params.Count),
-		OffsetString:          fmt.Sprintf("%d", params.Offset),
+	}
+
+	if params.Since != nil {
+		p.SinceUnix = fmt.Sprintf("%d", params.Since.Unix())
+	}
+
+	if params.Count > 0 {
+		p.CountString = fmt.Sprintf("%d", params.Count)
+	}
+
+	if params.Offset > 0 {
+		p.OffsetString = fmt.Sprintf("%d", params.Offset)
 	}
 
 	b, err := json.Marshal(p)
@@ -115,7 +153,7 @@ func (c *Client) Retrieve(ctx context.Context, params *RetrieveRequestParams) (*
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
 
-	r, err := c.get(ctx, RetrieveEndpoint, b)
+	r, err := c.do(ctx, RetrieveEndpoint, b)
 	if err != nil {
 		return nil, err
 	}

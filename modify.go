@@ -296,7 +296,7 @@ type deleteTagAction struct {
 }
 
 type ModifyRequestResponse struct {
-	ActionResults []string     `json:"action_results"`
+	ActionResults []bool       `json:"action_results"`
 	Status        ActionStatus `json:"status"`
 }
 
@@ -305,104 +305,128 @@ func (c *Client) Modify(ctx context.Context, params *ModifyRequestParams) (*Modi
 		RequestAuthParams: c.Auth.RequestAuthParams,
 	}
 
-	for _, v := range params.AddActions {
-		p.Actions = append(p.Actions, &addAction{
-			Action:     AddMethod,
-			AddAction:  v,
-			TagsString: strings.Join(v.Tags, ","),
-			TimeUnix:   v.Time.Unix(),
-		})
+	if params.AddActions != nil && len(params.AddActions) > 0 {
+		for _, v := range params.AddActions {
+			p.Actions = append(p.Actions, &addAction{
+				Action:     AddMethod,
+				AddAction:  v,
+				TagsString: strings.Join(v.Tags, ","),
+				TimeUnix:   v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.ArchiveActions {
-		p.Actions = append(p.Actions, &archiveAction{
-			Action:        ArchiveMethod,
-			ArchiveAction: v,
-			TimeUnix:      v.Time.Unix(),
-		})
+	if params.ArchiveActions != nil && len(params.ArchiveActions) > 0 {
+		for _, v := range params.ArchiveActions {
+			p.Actions = append(p.Actions, &archiveAction{
+				Action:        ArchiveMethod,
+				ArchiveAction: v,
+				TimeUnix:      v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.ReaddActions {
-		p.Actions = append(p.Actions, &readdAction{
-			Action:      ReaddMethod,
-			ReaddAction: v,
-			TimeUnix:    v.Time.Unix(),
-		})
+	if params.ReaddActions != nil && len(params.ReaddActions) > 0 {
+		for _, v := range params.ReaddActions {
+			p.Actions = append(p.Actions, &readdAction{
+				Action:      ReaddMethod,
+				ReaddAction: v,
+				TimeUnix:    v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.FavoriteActions {
-		p.Actions = append(p.Actions, &favoriteAction{
-			Action:         FavoriteMethod,
-			FavoriteAction: v,
-			TimeUnix:       v.Time.Unix(),
-		})
+	if params.FavoriteActions != nil && len(params.FavoriteActions) > 0 {
+		for _, v := range params.FavoriteActions {
+			p.Actions = append(p.Actions, &favoriteAction{
+				Action:         FavoriteMethod,
+				FavoriteAction: v,
+				TimeUnix:       v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.UnfavoriteActions {
-		p.Actions = append(p.Actions, &unfavoriteAction{
-			Action:           UnfavoriteMethod,
-			UnfavoriteAction: v,
-			TimeUnix:         v.Time.Unix(),
-		})
+	if params.UnfavoriteActions != nil && len(params.UnfavoriteActions) > 0 {
+		for _, v := range params.UnfavoriteActions {
+			p.Actions = append(p.Actions, &unfavoriteAction{
+				Action:           UnfavoriteMethod,
+				UnfavoriteAction: v,
+				TimeUnix:         v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.DeleteActions {
-		p.Actions = append(p.Actions, &deleteAction{
-			Action:       DeleteMethod,
-			DeleteAction: v,
-			TimeUnix:     v.Time.Unix(),
-		})
+	if params.DeleteActions != nil && len(params.DeleteActions) > 0 {
+		for _, v := range params.DeleteActions {
+			p.Actions = append(p.Actions, &deleteAction{
+				Action:       DeleteMethod,
+				DeleteAction: v,
+				TimeUnix:     v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.AddTagsActions {
-		p.Actions = append(p.Actions, &addTagsAction{
-			Action:        AddTagsMethod,
-			AddTagsAction: v,
-			TagsString:    strings.Join(v.Tags, ","),
-			TimeUnix:      v.Time.Unix(),
-		})
+	if params.AddTagsActions != nil && len(params.AddTagsActions) > 0 {
+		for _, v := range params.AddTagsActions {
+			p.Actions = append(p.Actions, &addTagsAction{
+				Action:        AddTagsMethod,
+				AddTagsAction: v,
+				TagsString:    strings.Join(v.Tags, ","),
+				TimeUnix:      v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.RemoveTagsActions {
-		p.Actions = append(p.Actions, &removeTagsAction{
-			Action:           RemoveTagsMethod,
-			RemoveTagsAction: v,
-			TagsString:       strings.Join(v.Tags, ","),
-			TimeUnix:         v.Time.Unix(),
-		})
+	if params.RemoveTagsActions != nil && len(params.RemoveTagsActions) > 0 {
+		for _, v := range params.RemoveTagsActions {
+			p.Actions = append(p.Actions, &removeTagsAction{
+				Action:           RemoveTagsMethod,
+				RemoveTagsAction: v,
+				TagsString:       strings.Join(v.Tags, ","),
+				TimeUnix:         v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.ReplaceTagsActions {
-		p.Actions = append(p.Actions, &replaceTagsAction{
-			Action:            ReplaceTagsMethod,
-			ReplaceTagsAction: v,
-			TagsString:        strings.Join(v.Tags, ","),
-			TimeUnix:          v.Time.Unix(),
-		})
+	if params.ReplaceTagsActions != nil && len(params.ReplaceTagsActions) > 0 {
+		for _, v := range params.ReplaceTagsActions {
+			p.Actions = append(p.Actions, &replaceTagsAction{
+				Action:            ReplaceTagsMethod,
+				ReplaceTagsAction: v,
+				TagsString:        strings.Join(v.Tags, ","),
+				TimeUnix:          v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.ClearTagsActions {
-		p.Actions = append(p.Actions, &clearTagsAction{
-			Action:          ClearTagsMethod,
-			ClearTagsAction: v,
-			TimeUnix:        v.Time.Unix(),
-		})
+	if params.ClearTagsActions != nil && len(params.ClearTagsActions) > 0 {
+		for _, v := range params.ClearTagsActions {
+			p.Actions = append(p.Actions, &clearTagsAction{
+				Action:          ClearTagsMethod,
+				ClearTagsAction: v,
+				TimeUnix:        v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.RenameTagActions {
-		p.Actions = append(p.Actions, &renameTagAction{
-			Action:          RenameTagMethod,
-			RenameTagAction: v,
-			TimeUnix:        v.Time.Unix(),
-		})
+	if params.RenameTagActions != nil && len(params.RenameTagActions) > 0 {
+		for _, v := range params.RenameTagActions {
+			p.Actions = append(p.Actions, &renameTagAction{
+				Action:          RenameTagMethod,
+				RenameTagAction: v,
+				TimeUnix:        v.Time.Unix(),
+			})
+		}
 	}
 
-	for _, v := range params.DeleteTagActions {
-		p.Actions = append(p.Actions, &deleteTagAction{
-			Action:          DeleteTagMethod,
-			DeleteTagAction: v,
-			TimeUnix:        v.Time.Unix(),
-		})
+	if params.DeleteTagActions != nil && len(params.DeleteTagActions) > 0 {
+		for _, v := range params.DeleteTagActions {
+			p.Actions = append(p.Actions, &deleteTagAction{
+				Action:          DeleteTagMethod,
+				DeleteTagAction: v,
+				TimeUnix:        v.Time.Unix(),
+			})
+		}
 	}
 
 	b, err := json.Marshal(p)
@@ -410,12 +434,13 @@ func (c *Client) Modify(ctx context.Context, params *ModifyRequestParams) (*Modi
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
 
-	r, err := c.post(ctx, ModifyEndpoint, b)
+	r, err := c.do(ctx, ModifyEndpoint, b)
 	if err != nil {
 		return nil, err
 	}
 
 	response := &ModifyRequestResponse{}
+
 	err = json.Unmarshal(r, response)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to unmarshal response body")

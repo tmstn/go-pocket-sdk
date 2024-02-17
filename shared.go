@@ -1,6 +1,6 @@
 package pocket
 
-type ActionStatus string
+type ActionStatus int
 
 func (a ActionStatus) Success() bool {
 	return a == Success
@@ -11,8 +11,8 @@ func (a ActionStatus) Failure() bool {
 }
 
 const (
-	Success ActionStatus = "1"
-	Failure ActionStatus = "0"
+	Success ActionStatus = 1
+	Failure ActionStatus = 0
 )
 
 type Ternary string

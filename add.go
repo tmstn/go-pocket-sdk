@@ -11,15 +11,15 @@ import (
 const AddEndpoint string = "/add"
 
 type AddRequestParams struct {
-	*RequestAuthParams
-	URL     string    `json:"url"`
-	Title   string    `json:"title,omitempty"`
-	Tags    string    `json:"tags,omitempty"`
-	TweetID string    `json:"tweet_id,omitempty"`
-	Time    time.Time `json:"-"`
+	URL     string     `json:"url"`
+	Title   string     `json:"title,omitempty"`
+	Tags    string     `json:"tags,omitempty"`
+	TweetID string     `json:"tweet_id,omitempty"`
+	Time    *time.Time `json:"-"`
 }
 
 type addRequestParams struct {
+	*RequestAuthParams
 	*AddRequestParams
 	TimeUnix int64 `json:"time,omitempty"`
 }
@@ -55,10 +55,13 @@ type AddRequestResponseItem struct {
 }
 
 func (c *Client) Add(ctx context.Context, params *AddRequestParams) (*AddRequestResponse, error) {
-	params.RequestAuthParams = c.Auth.RequestAuthParams
 	p := &addRequestParams{
-		AddRequestParams: params,
-		TimeUnix:         params.Time.Unix(),
+		RequestAuthParams: c.Auth.RequestAuthParams,
+		AddRequestParams:  params,
+	}
+
+	if params.Time != nil {
+		p.TimeUnix = params.Time.Unix()
 	}
 
 	b, err := json.Marshal(p)
@@ -66,7 +69,7 @@ func (c *Client) Add(ctx context.Context, params *AddRequestParams) (*AddRequest
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
 
-	r, err := c.post(ctx, AddEndpoint, b)
+	r, err := c.do(ctx, AddEndpoint, b)
 	if err != nil {
 		return nil, err
 	}

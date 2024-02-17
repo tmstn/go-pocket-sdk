@@ -59,7 +59,7 @@ func (a *Auth) GetRequestToken(ctx context.Context, redirectUrl string) (*TokenR
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
 
-	r, err := a.client.post(ctx, TokenRequestEndpoint, b)
+	r, err := a.client.do(ctx, TokenRequestEndpoint, b)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (a *Auth) Authorize(ctx context.Context, requestToken string) (*AuthorizeRe
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
 
-	r, err := a.client.post(ctx, AuthorizeRequestEndpoint, b)
+	r, err := a.client.do(ctx, AuthorizeRequestEndpoint, b)
 	if err != nil {
 		return nil, err
 	}
